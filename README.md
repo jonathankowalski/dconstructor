@@ -85,3 +85,48 @@ class Mailer
     }
 }
 ```
+
+## Installation
+
+```sh
+$ composer require dconstructor/dconstructor
+```
+
+
+## Usage
+
+Dconstructor is a simple DI container use it as usual
+
+```php
+$container = new Container();
+
+$container->set('foo','bar');
+```
+
+Dconstructor will make injection for you, in our example above for instantiate a new UserManager just call it
+
+```php
+$container = new Container();
+
+$userManager = $container->get('UserManager');
+```
+
+### Singleton
+
+U can choose to make a class a singleton use annotation for that.
+
+```php
+
+/**
+ * @Singleton
+ */
+class Mailer
+{
+    //some code
+}
+
+$container = new Container();
+
+$mailer = $container->get('Mailer');
+$sameMailer = $container->get('Mailer');
+```
