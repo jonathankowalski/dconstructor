@@ -20,6 +20,7 @@ class Container
 
     public function get($id)
     {
+        $this->arrayToClassName($id);
         if(!isset($this->container[$id])){
             if(class_exists($id)){
                 $this->stack = [];
@@ -34,6 +35,12 @@ class Container
             $value = null;
         }
         return $value;
+    }
+
+    protected function arrayToClassName(&$id){
+        if(is_array($id)){
+            $id = implode('\\', $id);
+        }
     }
 
     protected function getCheckStack($id)

@@ -1,5 +1,7 @@
 <?php
 
+require_once "Mocks.php";
+
 use PHPUnit\Framework\TestCase;
 use JonathanKowalski\Dconstructor\Container;
 
@@ -86,6 +88,51 @@ class ContainerTest extends TestCase
 
         $this->assertTrue($container->has('Singleton', false));
     }
+
+    public function testCallable(){
+        $container = new Container();
+
+        $container->set('foo', function(){
+           return new stdClass();
+        });
+
+        $this->assertInstanceOf('stdClass', $container->get('foo'));
+    }
+
+    public function testDepends(){
+        $container = new Container();
+
+        $depends = $container->get('Depends');
+
+        $this->assertInstanceOf('Depends', $depends);
+        $this->assertInstanceOf('Singleton', $depends->getSingleton());
+
+        $this->assertSame($container->get('Singleton'), $depends->getSingleton());
+    }
+
+    public function testNs(){
+
+        $container = new Container();
+
+        $mock = $container->get('Mocks\Mock');
+        $this->assertInstanceOf('Mocks\Mock', $mock);
+
+        $this->assertInstanceOf('Singleton', $mock->getSingleton());
+        $this->assertInstanceOf('Mocks\Singleton', $mock->getNsSingleton());
+
+        $this->assertSame($container->get('Singleton'), $mock->getSingleton());
+    }
+
+    public function testArrayNotation(){
+        $container = new Container();
+        $mock = $container->get(['Mocks','Mock']);
+        $this->assertInstanceOf('Mocks\Mock', $mock);
+
+        $singleArray = $container->get(['Mocks','Singleton']);
+        $single = $container->get('Mocks\Singleton');
+
+        $this->assertSame($single, $singleArray);
+    }
 }
 
 /**
@@ -98,4 +145,16 @@ class Singleton {
 
 class NotSingleton {
 
+}
+
+class Depends {
+
+    /**
+     * @var Singleton
+     */
+    private $singleton;
+
+    public function getSingleton(){
+        return $this->singleton;
+    }
 }
