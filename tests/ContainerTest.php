@@ -133,6 +133,13 @@ class ContainerTest extends TestCase
 
         $this->assertSame($single, $singleArray);
     }
+
+    public function testKeepValue(){
+        $container = new Container();
+        $container->set('foo',5);
+
+        $this->assertEquals(5, $container->get('foo'));
+    }
 }
 
 /**
