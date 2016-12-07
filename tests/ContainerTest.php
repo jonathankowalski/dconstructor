@@ -140,6 +140,15 @@ class ContainerTest extends TestCase
 
         $this->assertEquals(5, $container->get('foo'));
     }
+
+    /**
+     * @expectedException Exception
+     * @expectedExceptionMessage circular references
+     */
+    public function testCircular(){
+        $container = new Container();
+        $container->get('CircularA');
+    }
 }
 
 /**
@@ -164,4 +173,20 @@ class Depends {
     public function getSingleton(){
         return $this->singleton;
     }
+}
+
+class CircularA {
+
+    /**
+     * @var CircularB
+     */
+    private $circular;
+}
+
+class CircularB {
+
+    /**
+     * @var CircularA
+     */
+    private $circular;
 }
