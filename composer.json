@@ -2,7 +2,7 @@
   "name": "dconstructor/dconstructor",
   "description": "dependency injection for lazy p",
   "minimum-stability": "stable",
-  "license": "mit",
+  "license": "MIT",
   "authors": [
     {
       "name": "Jonathan Kowalski",
