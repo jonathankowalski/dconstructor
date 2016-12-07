@@ -55,4 +55,31 @@ class ContainerTest extends TestCase
 
         $container->set('stdClass', 'myval');
     }
+
+    public function testSingleton() {
+
+        $container = new Container();
+        $notsA = $container->get('NotSingleton');
+        $this->assertInstanceOf('NotSingleton', $notsA);
+        $notsB = $container->get('NotSingleton');
+        $this->assertNotSame($notsA, $notsB);
+
+        $a = $container->get('Singleton');
+        $this->assertInstanceOf('Singleton', $a);
+        $b = $container->get('Singleton');
+        $this->assertSame($a, $b);
+
+    }
+}
+
+/**
+ * Class Singleton
+ * @Singleton
+ */
+class Singleton {
+
+}
+
+class NotSingleton {
+
 }
