@@ -1,3 +1,4 @@
 whatwewant/
 vendor/
 composer.phar
+composer.lock
