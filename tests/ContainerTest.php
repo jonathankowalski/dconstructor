@@ -56,6 +56,14 @@ class ContainerTest extends TestCase
         $container->set('stdClass', 'myval');
     }
 
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testIdDontExists(){
+        $container = new Container();
+        $container->get('foo');
+    }
+
     public function testSingleton() {
 
         $container = new Container();
@@ -69,6 +77,14 @@ class ContainerTest extends TestCase
         $b = $container->get('Singleton');
         $this->assertSame($a, $b);
 
+    }
+
+    public function testHasUnstrict(){
+        $container = new Container();
+
+        $this->assertFalse($container->has('Singleton'));
+
+        $this->assertTrue($container->has('Singleton', false));
     }
 }
 
