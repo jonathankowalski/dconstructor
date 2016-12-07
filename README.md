@@ -1,6 +1,4 @@
-# Dconstructor
-[![Build Status](https://travis-ci.org/jonathankowalski/omg.svg?branch=master)](https://travis-ci.org/jonathankowalski/dconstructor)
-[![Coverage Status](https://coveralls.io/repos/github/jonathankowalski/dconstructor/badge.svg?branch=master)](https://coveralls.io/github/jonathankowalski/dconstructor?branch=master)
+# Dconstructor [![Build Status](https://travis-ci.org/jonathankowalski/omg.svg?branch=master)](https://travis-ci.org/jonathankowalski/dconstructor)[![Coverage Status](https://coveralls.io/repos/github/jonathankowalski/dconstructor/badge.svg?branch=master)](https://coveralls.io/github/jonathankowalski/dconstructor?branch=master)
 
 ## Dependency Injection for Lazy People
 ### (all of us btw)
