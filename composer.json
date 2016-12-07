@@ -1,0 +1,20 @@
+{
+  "name": "dconstructor/dconstructor",
+  "description": "dependency injection for lazy p",
+  "minimum-stability": "stable",
+  "license": "mit",
+  "authors": [
+    {
+      "name": "Jonathan Kowalski",
+      "email": "jonathankowalski@ymail.com"
+    }
+  ],
+  "require": {
+    "php-di/phpdoc-reader":"dev-master"
+  },
+  "autoload":{
+    "psr-4": {
+      "JonathanKowalski\\Dconstructor\\":"src"
+    }
+  }
+}
