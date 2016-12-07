@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jonathankowalski
- * Date: 07/12/2016
- * Time: 12:33
- */
 
 namespace JonathanKowalski\Dconstructor;
 
@@ -17,6 +11,7 @@ class Container
     private $docreader;
     private $container = [];
     private $stack = [];
+    const NULL_VALUE = 'dconsisnulll678';
 
     public function __construct()
     {
@@ -34,10 +29,15 @@ class Container
             }
         }
         $isCallable = method_exists($this->container[$id],'__invoke');
-        return $isCallable ? $this->container[$id]($this) : $this->container[$id];
+        $value = $isCallable ? $this->container[$id]($this) : $this->container[$id];
+        if(self::NULL_VALUE === $value){
+            $value = null;
+        }
+        return $value;
     }
 
-    protected function getCheckStack($id){
+    protected function getCheckStack($id)
+    {
         if(!isset($this->container[$id])) {
             if (in_array($id, $this->stack)) {
                 throw new \Exception('circular references');
@@ -56,14 +56,19 @@ class Container
         return isset($this->container[$id]) || class_exists($id);
     }
 
-    public function set($id, $value){
+    public function set($id, $value)
+    {
         if(class_exists($id)){
             throw new \InvalidArgumentException("Please don't use className for id, if u wanna got an object from $id just use ->get($id)");
+        }
+        if(null === $value){
+            $value = self::NULL_VALUE;
         }
         return $this->setInContainer($id, $value);
     }
 
-    protected function setInContainer($id, $value){
+    protected function setInContainer($id, $value)
+    {
         $this->container[$id] = $value;
         return $this;
     }
@@ -92,7 +97,8 @@ class Container
         return $object;
     }
 
-    protected function isSingleton(\ReflectionClass $class){
+    protected function isSingleton(\ReflectionClass $class)
+    {
         return false !== strpos($class->getDocComment(),'@Singleton');
     }
 }
