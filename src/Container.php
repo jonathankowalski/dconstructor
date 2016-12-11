@@ -83,6 +83,9 @@ class Container
     protected function getObjectFromClass($className)
     {
         $reflectionClass = new \ReflectionClass($className);
+        if($reflectionClass->isAbstract()){
+            return false;
+        }
         $object = $reflectionClass->newInstance();
 
         $properties = $reflectionClass->getProperties();
@@ -90,8 +93,10 @@ class Container
             $propertyClass = $this->docreader->getPropertyClass($property);
             if(!!$propertyClass){
                 $object4Property = $this->getCheckStack($propertyClass);
-                $property->setAccessible(true);
-                $property->setValue($object, $object4Property);
+                if(is_object($object4Property)) {
+                    $property->setAccessible(true);
+                    $property->setValue($object, $object4Property);
+                }
             }
         }
         if($this->isSingleton($reflectionClass)){
