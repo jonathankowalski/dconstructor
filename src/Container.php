@@ -41,12 +41,7 @@ class Container
                 throw new \InvalidArgumentException(sprintf("Identifier %s does not exists", $id));
             }
         }
-        $isCallable = method_exists($this->container[$id],'__invoke');
-        $value = $isCallable ? $this->container[$id]($this) : $this->container[$id];
-        if(self::NULL_VALUE === $value){
-            $value = null;
-        }
-        return $value;
+        return $this->getFromContainer($id);
     }
 
     protected function arrayToClassName(&$id){
@@ -67,8 +62,18 @@ class Container
             }
             $this->stack [] = $id;
             return $this->getObjectFromClass($id);
+        } else {
+            return $this->getFromContainer($id);
         }
-        return $this->get($id);
+    }
+
+    protected function getFromContainer($id){
+        $isCallable = method_exists($this->container[$id],'__invoke');
+        $value = $isCallable ? $this->container[$id]($this) : $this->container[$id];
+        if(self::NULL_VALUE === $value){
+            $value = null;
+        }
+        return $value;
     }
 
     public function has($id, $strict = true)

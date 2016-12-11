@@ -158,13 +158,9 @@ class ContainerTest extends TestCase
         $o = $container->get('UseAbstract');
 
         $this->assertInstanceOf('UseAbstract', $o);
-    }
 
-    public function testClimate(){
-        $container = new Container();
-        $o = $container->get('League\CLImate\ClImate');
-
-        $this->assertInstanceOf('League\CLImate\CLImate', $o);
+        $parser = $container->get('Parser');
+        $this->assertFalse($parser);
     }
 }
 
