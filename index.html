@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Dconstructor by jonathankowalski</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Dconstructor</h1>
+      <h2 class="project-tagline">Dependency Injection for Lazy People</h2>
+      <a href="https://github.com/jonathankowalski/dconstructor" class="btn">View on GitHub</a>
+      <a href="https://github.com/jonathankowalski/dconstructor/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/jonathankowalski/dconstructor/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="dconstructor--" class="anchor" href="#dconstructor--" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Dconstructor <a href="https://travis-ci.org/jonathankowalski/dconstructor"><img src="https://travis-ci.org/jonathankowalski/omg.svg?branch=master" alt="Build Status"></a> <a href="https://coveralls.io/github/jonathankowalski/dconstructor?branch=master"><img src="https://coveralls.io/repos/github/jonathankowalski/dconstructor/badge.svg?branch=master" alt="Coverage Status"></a>
+</h1>
+
+<h2>
+<a id="dependency-injection-for-lazy-people" class="anchor" href="#dependency-injection-for-lazy-people" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Dependency Injection for Lazy People</h2>
+
+<h3>
+<a id="all-of-us-btw" class="anchor" href="#all-of-us-btw" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>(all of us btw)</h3>
+
+<p>Everybody likes dependency injection (and if it is not your case, you should). However dependency injection sometimes leads us to write of useless code and that, everybody hates.</p>
+
+<p>The purpose of Dconstructor is to free you from certain portions of code which do not serve in much, the happiness of developers as a matter of fact.</p>
+
+<p>Indeed nowadays, we repeat many things, in the properties, in the signature of the constructor, in the body of the constructor. Yet to repeat it is null, time to dconstructor KISS</p>
+
+<h2>
+<a id="without-di" class="anchor" href="#without-di" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Without DI</h2>
+
+<p>just take a simple example</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-k">class</span> <span class="pl-en">UserManager</span></span>
+<span class="pl-s1">{</span>
+<span class="pl-s1">    <span class="pl-k">public</span> <span class="pl-k">function</span> <span class="pl-en">register</span>(<span class="pl-smi">$email</span>){</span>
+<span class="pl-s1">        <span class="pl-c">//some code</span></span>
+<span class="pl-s1">        <span class="pl-smi">$mailer</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">Mailer</span>();</span>
+<span class="pl-s1">        <span class="pl-smi">$mailer</span><span class="pl-k">-&gt;</span>send(<span class="pl-smi">$email</span>, <span class="pl-s"><span class="pl-pds">"</span>Hello !<span class="pl-pds">"</span></span>);</span>
+<span class="pl-s1">    }</span>
+<span class="pl-s1">}</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-k">class</span> <span class="pl-en">Mailer</span></span>
+<span class="pl-s1">{</span>
+<span class="pl-s1">    <span class="pl-k">public</span> <span class="pl-k">function</span> <span class="pl-en">send</span>(<span class="pl-smi">$recipient</span>, <span class="pl-smi">$message</span>)</span>
+<span class="pl-s1">    {</span>
+<span class="pl-s1">        <span class="pl-c">//some code</span></span>
+<span class="pl-s1">    }</span>
+<span class="pl-s1">}</span></pre></div>
+
+<h2>
+<a id="classic-di" class="anchor" href="#classic-di" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Classic DI</h2>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-k">class</span> <span class="pl-en">UserManager</span></span>
+<span class="pl-s1">{</span>
+<span class="pl-s1">    <span class="pl-c">/**</span></span>
+<span class="pl-s1"><span class="pl-c">     * <span class="pl-k">@var</span> Mailer</span></span>
+<span class="pl-s1"><span class="pl-c">     */</span></span>
+<span class="pl-s1">    <span class="pl-k">private</span> <span class="pl-smi">$mailer</span>;</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-k">public</span> <span class="pl-k">function</span> <span class="pl-c1">__construct</span>(<span class="pl-c1">Mailer</span> <span class="pl-smi">$mailer</span>) {</span>
+<span class="pl-s1">        <span class="pl-smi">$this</span><span class="pl-k">-&gt;</span><span class="pl-smi">mailer</span> <span class="pl-k">=</span> <span class="pl-smi">$mailer</span>;</span>
+<span class="pl-s1">    }</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-k">public</span> <span class="pl-k">function</span> <span class="pl-en">register</span>(<span class="pl-smi">$email</span>){</span>
+<span class="pl-s1">        <span class="pl-c">//some code</span></span>
+<span class="pl-s1">        <span class="pl-smi">$this</span><span class="pl-k">-&gt;</span><span class="pl-smi">mailer</span><span class="pl-k">-&gt;</span>send(<span class="pl-smi">$email</span>, <span class="pl-s"><span class="pl-pds">"</span>Hello !<span class="pl-pds">"</span></span>);</span>
+<span class="pl-s1">    }</span>
+<span class="pl-s1">}</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-k">class</span> <span class="pl-en">Mailer</span></span>
+<span class="pl-s1">{</span>
+<span class="pl-s1">    <span class="pl-k">public</span> <span class="pl-k">function</span> <span class="pl-en">send</span>(<span class="pl-smi">$recipient</span>, <span class="pl-smi">$message</span>)</span>
+<span class="pl-s1">    {</span>
+<span class="pl-s1">        <span class="pl-c">//some code</span></span>
+<span class="pl-s1">    }</span>
+<span class="pl-s1">}</span></pre></div>
+
+<h2>
+<a id="dconstructor" class="anchor" href="#dconstructor" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Dconstructor</h2>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-k">class</span> <span class="pl-en">UserManager</span></span>
+<span class="pl-s1">{</span>
+<span class="pl-s1">    <span class="pl-c">/**</span></span>
+<span class="pl-s1"><span class="pl-c">     * <span class="pl-k">@var</span> Mailer</span></span>
+<span class="pl-s1"><span class="pl-c">     */</span></span>
+<span class="pl-s1">    <span class="pl-k">private</span> <span class="pl-smi">$mailer</span>;</span>
+<span class="pl-s1"></span>
+<span class="pl-s1">    <span class="pl-k">public</span> <span class="pl-k">function</span> <span class="pl-en">register</span>(<span class="pl-smi">$email</span>){</span>
+<span class="pl-s1">        <span class="pl-c">//some code</span></span>
+<span class="pl-s1">        <span class="pl-smi">$this</span><span class="pl-k">-&gt;</span><span class="pl-smi">mailer</span><span class="pl-k">-&gt;</span>send(<span class="pl-smi">$email</span>, <span class="pl-s"><span class="pl-pds">"</span>Hello !<span class="pl-pds">"</span></span>);</span>
+<span class="pl-s1">    }</span>
+<span class="pl-s1">}</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-k">class</span> <span class="pl-en">Mailer</span></span>
+<span class="pl-s1">{</span>
+<span class="pl-s1">    <span class="pl-k">public</span> <span class="pl-k">function</span> <span class="pl-en">send</span>(<span class="pl-smi">$recipient</span>, <span class="pl-smi">$message</span>)</span>
+<span class="pl-s1">    {</span>
+<span class="pl-s1">        <span class="pl-c">//some code</span></span>
+<span class="pl-s1">    }</span>
+<span class="pl-s1">}</span></pre></div>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h2>
+
+<div class="highlight highlight-source-shell"><pre>$ composer require dconstructor/dconstructor</pre></div>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>Dconstructor is a simple DI container use it as usual</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$container</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">Container</span>();</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-smi">$container</span><span class="pl-k">-&gt;</span>set(<span class="pl-s"><span class="pl-pds">'</span>foo<span class="pl-pds">'</span></span>,<span class="pl-s"><span class="pl-pds">'</span>bar<span class="pl-pds">'</span></span>);</span></pre></div>
+
+<p>Dconstructor will make injection for you, in our example above for instantiate a new UserManager just call it</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"><span class="pl-smi">$container</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">Container</span>();</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-smi">$userManager</span> <span class="pl-k">=</span> <span class="pl-smi">$container</span><span class="pl-k">-&gt;</span>get(<span class="pl-s"><span class="pl-pds">'</span>UserManager<span class="pl-pds">'</span></span>);</span></pre></div>
+
+<h3>
+<a id="singleton" class="anchor" href="#singleton" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Singleton</h3>
+
+<p>U can choose to make a class a singleton use annotation for that.</p>
+
+<div class="highlight highlight-text-html-php"><pre><span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-c">/**</span></span>
+<span class="pl-s1"><span class="pl-c"> * @Singleton</span></span>
+<span class="pl-s1"><span class="pl-c"> */</span></span>
+<span class="pl-s1"><span class="pl-k">class</span> <span class="pl-en">Mailer</span></span>
+<span class="pl-s1">{</span>
+<span class="pl-s1">    <span class="pl-c">//some code</span></span>
+<span class="pl-s1">}</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-smi">$container</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">Container</span>();</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-smi">$mailer</span> <span class="pl-k">=</span> <span class="pl-smi">$container</span><span class="pl-k">-&gt;</span>get(<span class="pl-s"><span class="pl-pds">'</span>Mailer<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"><span class="pl-smi">$sameMailer</span> <span class="pl-k">=</span> <span class="pl-smi">$container</span><span class="pl-k">-&gt;</span>get(<span class="pl-s"><span class="pl-pds">'</span>Mailer<span class="pl-pds">'</span></span>);</span></pre></div>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/jonathankowalski/dconstructor">Dconstructor</a> is maintained by <a href="https://github.com/jonathankowalski">jonathankowalski</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
