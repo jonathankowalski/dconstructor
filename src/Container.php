@@ -13,9 +13,21 @@ class Container
     private $stack = [];
     const NULL_VALUE = 'dconsisnulll678';
 
-    public function __construct()
+    private $ignoreCircular = true;
+
+    const OPT_DONT_IGNORE_CIRCULAR = 01;
+
+    public function __construct($options = 0)
     {
         $this->docreader = new PhpDocReader();
+        $this->parseOptions($options);
+    }
+
+    protected function parseOptions($options)
+    {
+        if($options&self::OPT_DONT_IGNORE_CIRCULAR == self::OPT_DONT_IGNORE_CIRCULAR){
+            $this->ignoreCircular = false;
+        }
     }
 
     public function get($id)
@@ -47,7 +59,11 @@ class Container
     {
         if(!isset($this->container[$id])) {
             if (in_array($id, $this->stack)) {
-                throw new \Exception('circular references');
+                if(!$this->ignoreCircular) {
+                    throw new \Exception('circular references');
+                } else {
+                    return false;
+                }
             }
             $this->stack [] = $id;
             return $this->getObjectFromClass($id);

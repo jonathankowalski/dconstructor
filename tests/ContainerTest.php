@@ -146,8 +146,25 @@ class ContainerTest extends TestCase
      * @expectedExceptionMessage circular references
      */
     public function testCircular(){
-        $container = new Container();
+        $container = new Container(Container::OPT_DONT_IGNORE_CIRCULAR);
         $container->get('CircularA');
+    }
+
+    /**
+     * Abstract classes must be ignored
+     */
+    public function testAbstract(){
+        $container = new Container();
+        $o = $container->get('UseAbstract');
+
+        $this->assertInstanceOf('UseAbstract', $o);
+    }
+
+    public function testClimate(){
+        $container = new Container();
+        $o = $container->get('League\CLImate\ClImate');
+
+        $this->assertInstanceOf('League\CLImate\CLImate', $o);
     }
 }
 
@@ -189,4 +206,13 @@ class CircularB {
      * @var CircularA
      */
     private $circular;
+}
+
+abstract class Parser {}
+
+class UseAbstract {
+    /**
+     * @var Parser
+     */
+    private $parser;
 }
