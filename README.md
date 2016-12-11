@@ -11,7 +11,7 @@ Indeed nowadays, we repeat many things, in the properties, in the signature of t
 
 ## Without DI
 
-just a take a simple example
+just take a simple example
 
 ```php
 class UserManager
