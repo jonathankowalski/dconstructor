@@ -11,11 +11,11 @@ class Container
     private $docreader;
     private $container = [];
     private $stack = [];
-    const NULL_VALUE = 'dconsisnulll678';
+    const NULL_VALUE = '__NULL|VALUE__';
 
     private $ignoreCircular = true;
 
-    const OPT_DONT_IGNORE_CIRCULAR = 01;
+    const OPT_DONT_IGNORE_CIRCULAR = 1;
 
     public function __construct($options = 0)
     {
