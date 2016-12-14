@@ -15,13 +15,15 @@ class Context
 
     public function add($name){
         $this->stack .= '_'.$name.'_';
+        return $this;
     }
 
     public function rm($name){
-        return str_replace('_'.$name.'_','', $this->stack);
+        $this->stack = str_replace('_'.$name.'_','', $this->stack);
+        return $this;
     }
 
     public function has($name){
-        return strpos($this->stack, '_'.$name.'_');
+        return false !== strpos($this->stack, '_'.$name.'_');
     }
 }
