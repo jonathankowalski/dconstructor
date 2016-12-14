@@ -10,7 +10,10 @@ class Container
 
     private $docreader;
     private $container = [];
-    private $stack = [];
+    /**
+     * @var Context
+     */
+    private $context;
     const NULL_VALUE = '__NULL|VALUE__';
 
     private $ignoreCircular = true;
@@ -35,7 +38,7 @@ class Container
         $this->arrayToClassName($id);
         if(!isset($this->container[$id])){
             if(class_exists($id)){
-                $this->stack = [];
+                $this->context = new Context;
                 return $this->getCheckStack($id);
             } else {
                 throw new \InvalidArgumentException(sprintf("Identifier %s does not exists", $id));
@@ -53,14 +56,14 @@ class Container
     protected function getCheckStack($id)
     {
         if(!isset($this->container[$id])) {
-            if (in_array($id, $this->stack)) {
+            if ($this->context->has($id)) {
                 if(!$this->ignoreCircular) {
                     throw new \Exception('circular references');
                 } else {
                     return false;
                 }
             }
-            $this->stack [] = $id;
+            $this->context->add($id);
             return $this->getObjectFromClass($id);
         } else {
             return $this->getFromContainer($id);
@@ -73,6 +76,7 @@ class Container
         if(self::NULL_VALUE === $value){
             $value = null;
         }
+        unset($this->context);
         return $value;
     }
 
@@ -123,10 +127,7 @@ class Container
         if($this->isSingleton($reflectionClass)){
             $this->setInContainer($className, $object);
         }
-        $k = array_search($className,$this->stack);
-        if(false !== $k) {
-            unset($this->stack[$k]);
-        }
+        $this->context->rm($className);
         return $object;
     }
 
