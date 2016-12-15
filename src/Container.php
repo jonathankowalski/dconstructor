@@ -3,6 +3,7 @@
 namespace JonathanKowalski\Dconstructor;
 
 
+use JonathanKowalski\Dconstructor\Proxy\Wrapper;
 use PhpDocReader\PhpDocReader;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 
@@ -23,11 +24,13 @@ class Container
     private $ignoreCircular = true;
 
     const OPT_DONT_IGNORE_CIRCULAR = 1;
+    const OPT_USE_TMPDIR_4_PROXIES = 2;
 
     public function __construct($options = 0)
     {
         $this->docreader = new PhpDocReader;
-        $this->proxyManager = new LazyLoadingValueHolderFactory;
+        $proxyDir = ($options&self::OPT_USE_TMPDIR_4_PROXIES == self::OPT_USE_TMPDIR_4_PROXIES) ? sys_get_temp_dir() : false;
+        $this->proxyManager = new Wrapper($proxyDir);
         $this->parseOptions($options);
     }
 

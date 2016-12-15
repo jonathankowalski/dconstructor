@@ -12,6 +12,7 @@ before_script:
 
 script:
   - mkdir -p build/logs
+  - mkdir -p build/proxy
   - phpunit
 
 after_success:
