@@ -22,22 +22,25 @@ class Container
     const NULL_VALUE = '__NULL|VALUE__';
 
     private $ignoreCircular = true;
+    private $proxyDir = false;
 
     const OPT_DONT_IGNORE_CIRCULAR = 1;
     const OPT_USE_TMPDIR_4_PROXIES = 2;
 
     public function __construct($options = 0)
     {
-        $this->docreader = new PhpDocReader;
-        $proxyDir = ($options&self::OPT_USE_TMPDIR_4_PROXIES == self::OPT_USE_TMPDIR_4_PROXIES) ? sys_get_temp_dir() : false;
-        $this->proxyManager = new Wrapper($proxyDir);
         $this->parseOptions($options);
+        $this->docreader = new PhpDocReader;
+        $this->proxyManager = new Wrapper($this->proxyDir);
     }
 
     protected function parseOptions($options)
     {
         if($options&self::OPT_DONT_IGNORE_CIRCULAR == self::OPT_DONT_IGNORE_CIRCULAR){
             $this->ignoreCircular = false;
+        }
+        if($options&self::OPT_USE_TMPDIR_4_PROXIES == self::OPT_USE_TMPDIR_4_PROXIES){
+            $this->proxyDir = sys_get_temp_dir();
         }
     }
 
