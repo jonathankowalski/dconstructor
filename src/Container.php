@@ -4,16 +4,20 @@ namespace JonathanKowalski\Dconstructor;
 
 
 use PhpDocReader\PhpDocReader;
+use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 
 class Container
 {
 
-    private $docreader;
-    private $container = [];
     /**
-     * @var Context
+     * @var PhpDocReader
      */
-    private $context;
+    private $docreader;
+    /**
+     * @var LazyLoadingValueHolderFactory
+     */
+    private $proxyManager;
+    private $container = [];
     const NULL_VALUE = '__NULL|VALUE__';
 
     private $ignoreCircular = true;
@@ -22,7 +26,8 @@ class Container
 
     public function __construct($options = 0)
     {
-        $this->docreader = new PhpDocReader();
+        $this->docreader = new PhpDocReader;
+        $this->proxyManager = new LazyLoadingValueHolderFactory;
         $this->parseOptions($options);
     }
 
@@ -38,8 +43,7 @@ class Container
         $this->arrayToClassName($id);
         if(!isset($this->container[$id])){
             if(class_exists($id)){
-                $this->context = new Context;
-                return $this->getCheckStack($id);
+                return $this->getCheckContext($id, new Context);
             } else {
                 throw new \InvalidArgumentException(sprintf("Identifier %s does not exists", $id));
             }
@@ -53,30 +57,30 @@ class Container
         }
     }
 
-    protected function getCheckStack($id)
+    protected function getCheckContext($id, Context $context)
     {
         if(!isset($this->container[$id])) {
-            if ($this->context->has($id)) {
+            if ($context->has($id)) {
                 if(!$this->ignoreCircular) {
                     throw new \Exception('circular references');
                 } else {
                     return false;
                 }
             }
-            $this->context->add($id);
-            return $this->getObjectFromClass($id);
+            $context->add($id);
+            return $this->getObjectFromClass($id, $context);
         } else {
             return $this->getFromContainer($id);
         }
     }
 
-    protected function getFromContainer($id){
+    protected function getFromContainer($id)
+    {
         $isCallable = method_exists($this->container[$id],'__invoke');
         $value = $isCallable ? $this->container[$id]($this) : $this->container[$id];
         if(self::NULL_VALUE === $value){
             $value = null;
         }
-        unset($this->context);
         return $value;
     }
 
@@ -105,30 +109,38 @@ class Container
         return $this;
     }
 
-    protected function getObjectFromClass($className)
+    protected function getObjectFromClass($className, Context $context)
     {
         $reflectionClass = new \ReflectionClass($className);
         if($reflectionClass->isAbstract()){
             return false;
         }
-        $object = $reflectionClass->newInstance();
-
-        $properties = $reflectionClass->getProperties();
-        foreach($properties as $property){
-            $propertyClass = $this->docreader->getPropertyClass($property);
-            if(!!$propertyClass){
-                $object4Property = $this->getCheckStack($propertyClass);
-                if(is_object($object4Property)) {
-                    $property->setAccessible(true);
-                    $property->setValue($object, $object4Property);
-                }
-            }
-        }
+        $object = $this->getProxyObject($reflectionClass, $context);
         if($this->isSingleton($reflectionClass)){
             $this->setInContainer($className, $object);
         }
-        $this->context->rm($className);
         return $object;
+    }
+
+    protected function getProxyObject(\ReflectionClass $class, Context $context)
+    {
+        return $this->proxyManager->createProxy($class->name,
+            function(&$wrappedObject, $proxy, $method, $parameters, &$initializer) use ($class, $context){
+                $wrappedObject = $class->newInstance();
+                $properties = $class->getProperties();
+                foreach($properties as $property){
+                    $propertyClass = $this->docreader->getPropertyClass($property);
+                    if(!!$propertyClass){
+                        $object4Property = $this->getCheckContext($propertyClass, $context);
+                        if(is_object($object4Property)) {
+                            $property->setAccessible(true);
+                            $property->setValue($wrappedObject, $object4Property);
+                        }
+                    }
+                }
+                $initializer = null;
+                return true;
+            });
     }
 
     protected function isSingleton(\ReflectionClass $class)

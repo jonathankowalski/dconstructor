@@ -103,11 +103,16 @@ class ContainerTest extends TestCase
         $container = new Container();
 
         $depends = $container->get('Depends');
+        $depends2 = $container->get('Depends');
 
         $this->assertInstanceOf('Depends', $depends);
-        $this->assertInstanceOf('Singleton', $depends->getSingleton());
 
+        $this->assertInstanceOf('Singleton', $container->get('Singleton'));
         $this->assertSame($container->get('Singleton'), $depends->getSingleton());
+
+        $this->assertEquals(1, $container->get('Singleton')->getNbInstance());
+        $this->assertEquals(1, $depends->getSingleton()->getNbInstance());
+        $this->assertEquals(1, $depends2->getSingleton()->getNbInstance());
     }
 
     public function testNs(){
@@ -117,9 +122,7 @@ class ContainerTest extends TestCase
         $mock = $container->get('Mocks\Mock');
         $this->assertInstanceOf('Mocks\Mock', $mock);
 
-        $this->assertInstanceOf('Singleton', $mock->getSingleton());
-        $this->assertInstanceOf('Mocks\Singleton', $mock->getNsSingleton());
-
+        $this->assertSame($container->get('Mocks\Singleton'), $mock->getNsSingleton());
         $this->assertSame($container->get('Singleton'), $mock->getSingleton());
     }
 
@@ -147,8 +150,9 @@ class ContainerTest extends TestCase
      */
     public function testCircular(){
         $container = new Container(Container::OPT_DONT_IGNORE_CIRCULAR);
-        $container->get('CircularA');
+        $container->get('CircularA')->test();
     }
+
 
     /**
      * Abstract classes must be ignored
@@ -169,6 +173,17 @@ class ContainerTest extends TestCase
  * @Singleton
  */
 class Singleton {
+    static $nbinstance;
+
+    public function __construct()
+    {
+        static::$nbinstance++;
+    }
+
+    public function getNbInstance()
+    {
+        return static::$nbinstance;
+    }
 
 }
 
@@ -194,6 +209,15 @@ class CircularA {
      * @var CircularB
      */
     private $circular;
+
+    public function test()
+    {
+        $this->circular->test();
+    }
+
+    public function getCircularB(){
+        return $this->circular;
+    }
 }
 
 class CircularB {
@@ -202,6 +226,10 @@ class CircularB {
      * @var CircularA
      */
     private $circular;
+
+    public function test() {
+        $this->circular->test();
+    }
 }
 
 abstract class Parser {}
