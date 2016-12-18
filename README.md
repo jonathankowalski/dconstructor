@@ -7,7 +7,7 @@ Everybody likes dependency injection (and if it is not your case, you should). H
 
 The purpose of Dconstructor is to free you from certain portions of code which do not serve in much, the happiness of developers as a matter of fact.
 
-Indeed nowadays, we repeat many things, in the properties, in the signature of the constructor, in the body of the constructor. Yet to repeat it is null, time to dconstructor KISS
+Indeed nowadays, we repeat many things, in the properties, in the signature of the constructor, in the body of the constructor. Repeat is null, time to dconstructor KISS
 
 ## Without DI
 
