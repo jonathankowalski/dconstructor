@@ -4,10 +4,12 @@ namespace JonathanKowalski\Dconstructor;
 
 
 use JonathanKowalski\Dconstructor\Proxy\Wrapper;
+use JonathanKowalski\Dconstructor\Exception\NotFoundException;
 use PhpDocReader\PhpDocReader;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
+use Psr\Container\ContainerInterface;
 
-class Container
+class Container implements ContainerInterface
 {
 
     /**
@@ -51,7 +53,7 @@ class Container
             if(class_exists($id)){
                 return $this->getCheckContext($id, new Context);
             } else {
-                throw new \InvalidArgumentException(sprintf("Identifier %s does not exists", $id));
+                throw new NotFoundException($id);
             }
         }
         return $this->getFromContainer($id);

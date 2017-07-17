@@ -12,7 +12,8 @@
   "keywords":["dependency injection","lazy"],
   "require": {
     "php-di/phpdoc-reader":"dev-master",
-    "ocramius/proxy-manager":"1.0.x-dev"
+    "ocramius/proxy-manager":"1.0.x-dev",
+    "psr/container":"^1.0"
   },
   "require-dev": {
     "phpunit/phpunit":"5.*",
