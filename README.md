@@ -9,6 +9,31 @@ The purpose of Dconstructor is to free you from certain portions of code which d
 
 Indeed nowadays, we repeat many things, in the properties, in the signature of the constructor, in the body of the constructor. Repeat is null, time to dconstructor KISS
 
+## Dconstructor
+
+```php
+class UserManager
+{
+    /**
+     * @var Mailer
+     */
+    private $mailer;
+
+    public function register($email){
+        //some code
+        $this->mailer->send($email, "Hello !");
+    }
+}
+
+class Mailer
+{
+    public function send($recipient, $message)
+    {
+        //some code
+    }
+}
+```
+
 ## Without DI
 
 just take a simple example
@@ -45,31 +70,6 @@ class UserManager
     public function __construct(Mailer $mailer) {
         $this->mailer = $mailer;
     }
-
-    public function register($email){
-        //some code
-        $this->mailer->send($email, "Hello !");
-    }
-}
-
-class Mailer
-{
-    public function send($recipient, $message)
-    {
-        //some code
-    }
-}
-```
-
-## Dconstructor
-
-```php
-class UserManager
-{
-    /**
-     * @var Mailer
-     */
-    private $mailer;
 
     public function register($email){
         //some code
