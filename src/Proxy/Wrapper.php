@@ -2,7 +2,6 @@
 
 namespace JonathanKowalski\Dconstructor\Proxy;
 
-
 use ProxyManager\Configuration;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use ProxyManager\FileLocator\FileLocator;
@@ -21,8 +20,8 @@ class Wrapper
 
     public function __construct($proxiesDirectory = false)
     {
-        if( false !== $proxiesDirectory ) {
-            if(!is_writable($proxiesDirectory)) {
+        if (false !== $proxiesDirectory) {
+            if (!is_writable($proxiesDirectory)) {
                 throw new \InvalidArgumentException("$proxiesDirectory must be a writable location");
             }
             $this->proxiesDirectory = $proxiesDirectory;
@@ -36,7 +35,7 @@ class Wrapper
      */
     public function createProxy($className, \Closure $initializer)
     {
-        if(!$this->proxyManager){
+        if (!$this->proxyManager) {
             $this->proxyManager = $this->createProxyManager();
         }
 
@@ -47,7 +46,7 @@ class Wrapper
     {
         $config = new Configuration;
 
-        if(!!$this->proxiesDirectory) {
+        if (!!$this->proxiesDirectory) {
             $config->setProxiesTargetDir($this->proxiesDirectory);
             $config->setGeneratorStrategy(new FileWriterGeneratorStrategy(new FileLocator($this->proxiesDirectory)));
             spl_autoload_register($config->getProxyAutoloader());
