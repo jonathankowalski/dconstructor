@@ -4,6 +4,7 @@ namespace JonathanKowalski\Dconstructor;
 
 use JonathanKowalski\Dconstructor\Proxy\Wrapper;
 use JonathanKowalski\Dconstructor\Exception\NotFoundException;
+use PhpDocReader\AnnotationException;
 use PhpDocReader\PhpDocReader;
 use ProxyManager\Factory\LazyLoadingValueHolderFactory;
 use Psr\Container\ContainerInterface;
@@ -45,6 +46,11 @@ class Container implements ContainerInterface
         }
     }
 
+    /**
+     * @param string $id
+     * @return bool|mixed|null|\ProxyManager\Proxy\VirtualProxyInterface
+     * @throws \Exception
+     */
     public function get($id)
     {
         $this->arrayToClassName($id);
@@ -65,8 +71,17 @@ class Container implements ContainerInterface
         }
     }
 
+    /**
+     * @param $id
+     * @param Context $context
+     * @return bool|mixed|null|\ProxyManager\Proxy\VirtualProxyInterface
+     * @throws \Exception
+     */
     protected function getCheckContext($id, Context $context)
     {
+        if (!$id) {
+            return false;
+        }
         if (!isset($this->container[$id])) {
             if ($context->has($id)) {
                 if (!$this->ignoreCircular) {
@@ -100,10 +115,17 @@ class Container implements ContainerInterface
         return isset($this->container[$id]) || class_exists($id);
     }
 
+    /**
+     * @param $id
+     * @param $value
+     * @return Container
+     */
     public function set($id, $value)
     {
         if (class_exists($id)) {
-            throw new \InvalidArgumentException("Please don't use className for id, if u wanna got an object from $id just use ->get($id)");
+            throw new \InvalidArgumentException(
+                "Please don't use className for id, if u wanna got an object from $id just use ->get($id)"
+            );
         }
         if (null === $value) {
             $value = self::NULL_VALUE;
@@ -117,6 +139,12 @@ class Container implements ContainerInterface
         return $this;
     }
 
+    /**
+     * @param $className
+     * @param Context $context
+     * @return bool|\ProxyManager\Proxy\VirtualProxyInterface
+     * @throws \ReflectionException
+     */
     protected function getObjectFromClass($className, Context $context)
     {
         $reflectionClass = new \ReflectionClass($className);
@@ -136,21 +164,56 @@ class Container implements ContainerInterface
             $class->name,
             function (&$wrappedObject, $proxy, $method, $parameters, &$initializer) use ($class, $context) {
                 $wrappedObject = $class->newInstance();
-                $properties = $class->getProperties();
-                foreach ($properties as $property) {
-                    $propertyClass = $this->docreader->getPropertyClass($property);
-                    if (!!$propertyClass) {
-                        $object4Property = $this->getCheckContext($propertyClass, $context);
-                        if (is_object($object4Property)) {
-                            $property->setAccessible(true);
-                            $property->setValue($wrappedObject, $object4Property);
-                        }
-                    }
-                }
                 $initializer = null;
-                return true;
+                return $this->populateProperties($class->getProperties(), $context, $wrappedObject);
             }
         );
+    }
+
+    /**
+     * @param $properties
+     * @param Context $context
+     * @param $object
+     * @return bool
+     * @throws \Exception
+     */
+    private function populateProperties($properties, Context $context, $object)
+    {
+        $property = array_pop($properties);
+        if (!!$property) {
+            $object4Property = $this->getObject4Property($property, $context);
+            $this->setValueProperty($property, $object, $object4Property);
+            return $this->populateProperties($properties, $context, $object);
+        }
+        return true;
+    }
+
+    /**
+     * @param \ReflectionProperty $property
+     * @param Context $context
+     * @return bool|mixed|null|\ProxyManager\Proxy\VirtualProxyInterface
+     * @throws \Exception
+     */
+    private function getObject4Property(\ReflectionProperty $property, Context $context)
+    {
+        try {
+            $propertyClass = $this->docreader->getPropertyClass($property);
+        } catch (AnnotationException $e) {
+            return null;
+        }
+        $object4Property = $this->getCheckContext($propertyClass, $context);
+        if (is_object($object4Property)) {
+            return $object4Property;
+        }
+        return null;
+    }
+
+    private function setValueProperty(\ReflectionProperty $property, $object, $value)
+    {
+        if (!!$value) {
+            $property->setAccessible(true);
+            $property->setValue($object, $value);
+        }
     }
 
     protected function isSingleton(\ReflectionClass $class)
