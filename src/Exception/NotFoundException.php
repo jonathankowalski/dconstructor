@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jonathankowalski
- * Date: 17/07/2017
- * Time: 19:31
- */
 
 namespace JonathanKowalski\Dconstructor\Exception;
 

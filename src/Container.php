@@ -36,7 +36,7 @@ class Container implements ContainerInterface
         $this->proxyManager = new Wrapper($this->proxyDir);
     }
 
-    protected function parseOptions($options)
+    private function parseOptions($options)
     {
         if ($options&self::OPT_DONT_IGNORE_CIRCULAR == self::OPT_DONT_IGNORE_CIRCULAR) {
             $this->ignoreCircular = false;
@@ -53,7 +53,7 @@ class Container implements ContainerInterface
      */
     public function get($id)
     {
-        $this->arrayToClassName($id);
+        $id = $this->arrayToClassName($id);
         if (!isset($this->container[$id])) {
             if (class_exists($id)) {
                 return $this->getCheckContext($id, new Context);
@@ -64,11 +64,12 @@ class Container implements ContainerInterface
         return $this->getFromContainer($id);
     }
 
-    protected function arrayToClassName(&$id)
+    private function arrayToClassName($id)
     {
         if (is_array($id)) {
             $id = implode('\\', $id);
         }
+        return $id;
     }
 
     /**
@@ -77,7 +78,7 @@ class Container implements ContainerInterface
      * @return bool|mixed|null|\ProxyManager\Proxy\VirtualProxyInterface
      * @throws \Exception
      */
-    protected function getCheckContext($id, Context $context)
+    private function getCheckContext($id, Context $context)
     {
         if (!$id) {
             return false;
@@ -97,7 +98,7 @@ class Container implements ContainerInterface
         }
     }
 
-    protected function getFromContainer($id)
+    private function getFromContainer($id)
     {
         $isCallable = method_exists($this->container[$id], '__invoke');
         $value = $isCallable ? $this->container[$id]($this) : $this->container[$id];
@@ -109,10 +110,7 @@ class Container implements ContainerInterface
 
     public function has($id, $strict = true)
     {
-        if ($strict) {
-            return isset($this->container[$id]);
-        }
-        return isset($this->container[$id]) || class_exists($id);
+        return isset($this->container[$id]) || (!$strict && class_exists($id));
     }
 
     /**
@@ -133,7 +131,7 @@ class Container implements ContainerInterface
         return $this->setInContainer($id, $value);
     }
 
-    protected function setInContainer($id, $value)
+    private function setInContainer($id, $value)
     {
         $this->container[$id] = $value;
         return $this;
@@ -145,7 +143,7 @@ class Container implements ContainerInterface
      * @return bool|\ProxyManager\Proxy\VirtualProxyInterface
      * @throws \ReflectionException
      */
-    protected function getObjectFromClass($className, Context $context)
+    private function getObjectFromClass($className, Context $context)
     {
         $reflectionClass = new \ReflectionClass($className);
         if ($reflectionClass->isAbstract()) {
@@ -158,7 +156,7 @@ class Container implements ContainerInterface
         return $object;
     }
 
-    protected function getProxyObject(\ReflectionClass $class, Context $context)
+    private function getProxyObject(\ReflectionClass $class, Context $context)
     {
         return $this->proxyManager->createProxy(
             $class->name,
@@ -171,7 +169,7 @@ class Container implements ContainerInterface
     }
 
     /**
-     * @param $properties
+     * @param \ReflectionProperty[] $properties
      * @param Context $context
      * @param $object
      * @return bool
@@ -182,7 +180,9 @@ class Container implements ContainerInterface
         $property = array_pop($properties);
         if (!!$property) {
             $object4Property = $this->getObject4Property($property, $context);
-            $this->setValueProperty($property, $object, $object4Property);
+            if (!!$object4Property) {
+                $this->setValueProperty($property, $object, $object4Property);
+            }
             return $this->populateProperties($properties, $context, $object);
         }
         return true;
@@ -191,7 +191,7 @@ class Container implements ContainerInterface
     /**
      * @param \ReflectionProperty $property
      * @param Context $context
-     * @return bool|mixed|null|\ProxyManager\Proxy\VirtualProxyInterface
+     * @return null|\ProxyManager\Proxy\VirtualProxyInterface
      * @throws \Exception
      */
     private function getObject4Property(\ReflectionProperty $property, Context $context)
@@ -210,13 +210,11 @@ class Container implements ContainerInterface
 
     private function setValueProperty(\ReflectionProperty $property, $object, $value)
     {
-        if (!!$value) {
-            $property->setAccessible(true);
-            $property->setValue($object, $value);
-        }
+        $property->setAccessible(true);
+        $property->setValue($object, $value);
     }
 
-    protected function isSingleton(\ReflectionClass $class)
+    private function isSingleton(\ReflectionClass $class)
     {
         return false !== strpos($class->getDocComment(), '@Singleton');
     }
